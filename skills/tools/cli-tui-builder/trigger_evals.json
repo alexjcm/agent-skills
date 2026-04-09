@@ -1,0 +1,50 @@
+[
+  {
+    "query": "Help me design a Node 20+ CLI with subcommands, flags, and clean stdout/stderr behavior.",
+    "should_trigger": true
+  },
+  {
+    "query": "Estoy creando una herramienta de terminal en TypeScript y necesito elegir stack para prompts, spinners y validacion.",
+    "should_trigger": true
+  },
+  {
+    "query": "Build a TUI with Ink and keyboard navigation for a developer workflow.",
+    "should_trigger": true
+  },
+  {
+    "query": "How should I handle SIGINT, exit codes, and TTY detection in my CLI app?",
+    "should_trigger": true
+  },
+  {
+    "query": "Necesito recomendaciones para una CLI que se desarrolle con Bun pero se distribuya en Node 20+.",
+    "should_trigger": true
+  },
+  {
+    "query": "Pick libraries for a terminal tool: command parser, prompts, colors, and process execution.",
+    "should_trigger": true
+  },
+  {
+    "query": "Can you scaffold a React web dashboard with charts and dark mode?",
+    "should_trigger": false
+  },
+  {
+    "query": "Write JUnit 4 unit tests for this Java service.",
+    "should_trigger": false
+  },
+  {
+    "query": "Document this Java class with JavaDoc.",
+    "should_trigger": false
+  },
+  {
+    "query": "Ayudame a optimizar esta consulta SQL de DB2.",
+    "should_trigger": false
+  },
+  {
+    "query": "Configure a Kubernetes deployment and HPA for this API.",
+    "should_trigger": false
+  },
+  {
+    "query": "Translate my README from English to Spanish.",
+    "should_trigger": false
+  }
+]

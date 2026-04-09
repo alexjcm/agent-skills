@@ -4,8 +4,8 @@
 
 | Stage | Runtime |
 |---|---|
-| Development | Bun `1.3.10` or Node 24 |
-| Distribution | Node |
+| Development | Bun `1.3.10+` or Node `20+` |
+| Distribution | Node `20+` |
 
 ---
 
@@ -148,9 +148,9 @@ For apps with layout, multiple sections, keyboard navigation, and rich content r
 
 ---
 
-### Filesystem: fs-extra vs native Node 24 fs
+### Filesystem: fs-extra vs native Node fs
 
-| Criterion | fs-extra `11.3.4` | `node:fs/promises` (Node 24) |
+| Criterion | fs-extra `11.3.4` | `node:fs/promises` (Node 20+) |
 |---|---|---|
 | Recursive `copy()` | ✅ | ❌ Only `copyFile` (single file) |
 | `move()` across drives | ✅ | ❌ `rename` fails across partitions |
@@ -189,11 +189,11 @@ For apps with layout, multiple sections, keyboard navigation, and rich content r
 
 ---
 
-## Node 24 — native APIs that can replace libraries
+## Node 20+ — native APIs that can replace libraries
 
-With Node 24, several native APIs are mature enough to replace dependencies. The decision depends on the complexity of the use case.
+With Node 20+ (and especially Node 22+/24), several native APIs are mature enough to replace dependencies. The decision depends on the complexity of the use case.
 
-| Need | Stack library | Native Node 24 API | When to prefer the native API |
+| Need | Stack library | Native Node API | When to prefer the native API |
 |---|---|---|---|
 | Terminal colors | Picocolors | `util.styleText('red', text)` | Internal or dev scripts where the API doesn't matter. For user-facing output, Picocolors is still more ergonomic. |
 | File search | fast-glob | `import { glob } from 'node:fs/promises'` | Simple patterns (`**/*.ts`) with no need for multiple patterns, negations, or concurrency control. |

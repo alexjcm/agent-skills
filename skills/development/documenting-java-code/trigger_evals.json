@@ -1,0 +1,58 @@
+[
+  {
+    "query": "Document this Java class with JavaDoc and include constructor and public method comments.",
+    "should_trigger": true
+  },
+  {
+    "query": "Please add JavaDoc to this Java service class and its public methods.",
+    "should_trigger": true
+  },
+  {
+    "query": "Actualiza los JavaDoc de esta clase Java para que queden consistentes.",
+    "should_trigger": true
+  },
+  {
+    "query": "Genera documentacion JavaDoc para este metodo publico y su retorno.",
+    "should_trigger": true
+  },
+  {
+    "query": "Add missing JavaDoc for constructors and methods in this Java 8 file.",
+    "should_trigger": true
+  },
+  {
+    "query": "Necesito documentar una clase Java, incluyendo author a nivel de clase.",
+    "should_trigger": true
+  },
+  {
+    "query": "Write Javadoc for this overridden method using inheritDoc where appropriate.",
+    "should_trigger": true
+  },
+  {
+    "query": "Can you generate Java comments for this Python FastAPI module?",
+    "should_trigger": false
+  },
+  {
+    "query": "Create JUnit 4 unit tests for this Java service.",
+    "should_trigger": false
+  },
+  {
+    "query": "Ayudame a publicar un paquete npm en la registry publica.",
+    "should_trigger": false
+  },
+  {
+    "query": "Optimize this SQL query and add indexes for better performance.",
+    "should_trigger": false
+  },
+  {
+    "query": "Build a CLI in Node.js to parse CSV files.",
+    "should_trigger": false
+  },
+  {
+    "query": "Translate this README from English to Spanish.",
+    "should_trigger": false
+  },
+  {
+    "query": "Migrate these tests from JUnit 4 to JUnit 5 Jupiter.",
+    "should_trigger": false
+  }
+]

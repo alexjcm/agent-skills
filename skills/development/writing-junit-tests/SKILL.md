@@ -1,142 +1,93 @@
 ---
 name: writing-junit-tests
-description: Generate JUnit 4 tests for Java 8. Defaults to unit tests unless user explicitly requests integration tests. Use when user requests "unit tests", "integration tests", "write tests".
+description: Generates JUnit 4 tests for Java 8 and defaults to unit tests unless the user explicitly requests integration tests. Use when the user asks to write Java tests, unit tests, integration tests, or test classes.
 ---
 
 # Writing JUnit Tests
 
-This skill assists in generating unit and integration tests for Java applications using JUnit 4 following AAA/GWT patterns.
+This skill generates Java 8 tests using JUnit 4, with deterministic selection between unit and integration styles.
 
-## Quick Decision Tree
+## Activation Signals
 
-Is it a Spring component (Controller/Service/Repository)?
-- YES → Integration Test (SpringRunner + GWT)
-- NO → Unit Test (MockitoJUnitRunner + AAA)
+Use this skill when the user asks to:
+- write tests for Java code
+- create unit tests
+- create integration tests
+- generate test classes for service/controller/repository code
 
-## Unit Tests (Isolated logic, no Spring Context)
+## Out of Scope
 
-**Core Annotations (JUnit 4 + Mockito):**
-- `@RunWith(MockitoJUnitRunner.class)`: Required to initialize mocks (`org.mockito.junit.MockitoJUnitRunner`).
-- `@Mock`: Define mocked dependencies.
-- `@InjectMocks`: Inject mocks into the class under test.
-- `@Test`: Marks a method as a test case (`org.junit.Test`).
-- `@Before` / `@After`: Setup and teardown methods (replaces `@BeforeEach` / `@AfterEach`).
-- No use @DisplayName annotation.
-- Avoid using any JUnit assertions like assertEquals or assertTrue. Always use AssertJ for all checks.
-- Always use static imports for AssertJ assertions: import static org.assertj.core.api.Assertions.assertThat;
+- JUnit 5 migration
+- non-Java or non-JUnit requests
+- test frameworks outside JUnit 4 context
 
-**Structure (AAA):**
-- Arrange: Prepare data and mocks.
-- Act: Call the method under test.
-- Assert: Verify results and mock interactions (`org.junit.Assert`).
+## Decision Policy (Mandatory)
 
-### Test Method Example (AAA Pattern)
-```java
-@Test
-public void shouldReturnExpectedResultWhenValidInput() {
-    // Arrange
-    InputType input = new InputType("value");
-    when(dependency.method(any())).thenReturn(expectedValue);
-    
-    // Act
-    ResultType result = classUnderTest.methodUnderTest(input);
-    
-    // Assert
-    assertThat(result).isNotNull();
-    assertThat(result.getValue()).isEqualTo(expectedValue);
-    verify(dependency).method(any());
-}
-```
+1. If user does not specify test type, generate **unit tests**.
+2. Generate integration tests only when user explicitly asks for integration behavior.
+3. Do not infer integration only because the class is a `Controller` or `Repository`.
+4. `@RunWith(SpringRunner.class)` + `@DataJpaTest` is an **integration test**, not a unit test.
 
-### Naming Convention Example (BDD Style)
-- shouldReturnUserWhenIdExists
-- shouldThrowExceptionWhenInputIsNull
-- shouldUpdateStatusWhenValidRequest
+## Core Rules
 
+- Target stack: Java 8 + JUnit 4.
+- Follow repository conventions first when they conflict with skill defaults.
+- Prefer AssertJ style when compatible with repository conventions.
+- Use static imports for assertions and Mockito helpers where possible.
+- Avoid JUnit 5 annotations (`@ExtendWith`, `@BeforeEach`, `@AfterEach`).
+- Keep naming explicit and behavior-oriented (`should...When...` or `given...When...Then`).
+- Do not add unnecessary tests for trivial getters/setters unless requested.
 
-## Integration Tests (Spring Context)
+## Unit Test Guidance
 
-**Core Annotations:**
-- `@RunWith(SpringRunner.class)`: **Mandatory** for Spring context in JUnit 4.
-- `@SpringBootTest`: Full context.
-- `@WebMvcTest(Controller.class)`: Web layer slice.
-- `@DataJpaTest`: Persistence layer slice.
-- `@MockBean`: Mock Spring beans.
-- `@Autowired`: Inject real beans.
-- `@ActiveProfiles("test")`: Activate test profile.
-- `@Transactional`: Auto-rollback.
+Use for isolated logic, no Spring context.
 
-**Structure (GWT):**
-- Given: Initial state setup.
-- When: Action triggered.
-- Then: Expected outcome verification.
+Recommended annotations and structure:
+- `@RunWith(MockitoJUnitRunner.class)`
+- `@Mock`, `@InjectMocks`, `@Before`, `@Test`
+- AAA flow: Arrange, Act, Assert
 
-### Test Method Example (GWT Pattern)
-```java
-@Test
-public void givenValidUserWhenCreateThenReturnCreated() throws Exception {
-    // Given
-    UserDTO userDTO = new UserDTO("John", "Doe");
-    when(service.create(any())).thenReturn(savedUser);
-    
-    // When
-    mockMvc.perform(post("/api/users")
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(userDTO)))
-    
-    // Then
-            .andExpect(status().isCreated())
-            .andExpect(jsonPath("$.name").value("John"));
-}
-```
+Unit constraints:
+- Do not use `@DataJpaTest`, `@WebMvcTest`, or `@SpringBootTest`.
+- Prefer mocking collaborators and asserting behavior/output.
 
-### Naming Convention Example (GWT Style)
-- givenValidInputWhenProcessThenReturnSuccess
-- givenMissingDataWhenValidateThenReturnBadRequest
-- givenExistingUserWhenUpdateThenReturnOk
+## Integration Test Guidance
 
-## Assertions (Always use AssertJ 3.9.x)
+Use only when explicitly requested by the user.
 
-**Basic:**
-```java
-assertThat(actual).isEqualTo(expected);
-assertThat(value).isNotNull();
-assertThat(flag).isTrue();
-```
+Choose the narrowest scope:
+- Repository integration: `@RunWith(SpringRunner.class)` + `@DataJpaTest`
+- Controller integration: `@RunWith(SpringRunner.class)` + `@WebMvcTest`
+- Full context: `@RunWith(SpringRunner.class)` + `@SpringBootTest` only when needed
 
-**Collections:**
-```java
-assertThat(list).hasSize(3);
-assertThat(list).contains(item);
-assertThat(list).isEmpty();
-```
+Integration expectations:
+- Use real Spring slice/context components as appropriate.
+- Verify observable behavior at boundary level (HTTP, JPA interaction, transactional effects).
 
-**Exceptions:**
-```java
-assertThatThrownBy(() -> service.method())
-    .isInstanceOf(CustomException.class)
-    .hasMessage("Expected message");
-```
+## Assertions Policy
 
-**Objects:**
-```java
-assertThat(user)
-    .isNotNull()
-    .extracting("name", "email")
-    .containsExactly("John", "john@example.com");
-```
+- Default preference: AssertJ.
+- If project convention or dependencies use another assertion style, follow the repository.
+- Prefer chained assertions on the same subject and `extracting(...).containsExactly(...)` patterns when they improve readability.
 
-## Critical Rules
+Detailed assertion examples: [`references/assertions.md`](references/assertions.md)
 
-- Default to unit tests when test type is not specified
-- ALWAYS use `@RunWith` (MockitoJUnitRunner or SpringRunner)
-- Use AssertJ (`assertThat`) over JUnit assertions
-- Follow AAA for unit tests, GWT for integration tests
-- Use BDD naming (`should...When` or `given...When...Then`)
-- Place unit tests in same package under `src/test/java`
-- Place integration tests in same package under `src/integration-test/java`
-- NEVER use JUnit 5 annotations (`@BeforeEach`, `@ExtendWith`)
-- NEVER mix `assertEquals` with `assertThat`
-- Don't test getters/setters
-- ALWAYS use static imports for Mockito: `when`, `doNothing`, `doReturn`, `doThrow`, `verify`, `eq`, `any`, etc. NEVER use qualified calls like `Mockito.when(...)` or `Mockito.eq(...)`
-- Avoid using FQCN, prefer import
+## Templates
+
+Use templates from:
+- [`references/templates.md`](references/templates.md)
+
+Template set includes:
+- Service unit test (Mockito runner).
+- Controller unit test (no Spring test context).
+- Repository integration test (`@DataJpaTest`).
+- Controller integration test (`@WebMvcTest`).
+
+## Final Verification Checklist
+
+- Confirm requested test type (unit vs integration) before generating code.
+- Confirm Java 8 + JUnit 4 annotations/imports.
+- Confirm no Spring context annotations appear in unit tests.
+- Confirm integration tests use the correct Spring slice for the request.
+- Confirm assertion style follows repository conventions.
+- Confirm target tests compile and the requested test class/method can be executed.

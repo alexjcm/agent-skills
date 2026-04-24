@@ -7,11 +7,16 @@ description: Review the source code of mobile-first web apps and PWAs to evaluat
 
 Review the source code of a mobile-first web app or PWA to evaluate whether it follows strong mobile UI/UX practices, identify anti-patterns, and propose prioritized improvements. The sources in `references/sources.md` are recommended and reliable starting points for evaluation criteria and further research when needed.
 
-**Default mode:** perform a `deep audit` from source code. Optimize for coverage, traceability, and actionable recommendations over brevity.
+**Review mode:** choose between `quick review` and `deep audit` based on user intent and project scope.
+- Use `quick review` when the user asks for a fast validation, a narrow check, or a lightweight pass over a small surface area
+- Use `deep audit` when the repo is medium/large, the flow is business-critical, multiple screens or components are involved, or the user explicitly asks for an audit
+- If the intent is ambiguous, default to `deep audit` for medium/large repos and `quick review` for clearly narrow requests
 
-**Primary input:** the app source code, including components, HTML, CSS, routes, and state logic. Always review the code first. Screenshots complement the analysis when they help validate visual hierarchy, density, states, or the rendered behavior of key screens.
+**Primary input:** the app source code, including components, HTML, CSS, routes, and state logic. Always review the code first. If the app can be run locally without disproportionate setup effort, prefer rendering it locally before requesting extra context. Screenshots complement the analysis when they help validate visual hierarchy, density, states, or the rendered behavior of key screens, and the user may provide them from the start if desired.
 
 **Scope:** mobile-first web apps and PWAs. Do not use this skill for backend logic or desktop-first design reviews.
+
+**Review-only rule:** this skill is for analysis and recommendations, not implementation. Do not modify the code while performing the review. After the audit, the user decides whether any of the recommended changes should actually be implemented.
 
 ---
 
@@ -34,9 +39,22 @@ Request screenshots or a flow description when:
 - It is unclear whether an element is visible in the primary flow
 - The project is medium or large, many components are involved, or screenshots of the main screens would materially improve analysis accuracy
 
+**Before requesting screenshots:** if the repo appears runnable and local rendering is feasible, try to run the app and inspect the relevant screens first. Ask for screenshots only when local rendering is not possible, too costly, or still insufficient to resolve the UX question.
+
 **If the user already provides screenshots:** use them as a complement, not a replacement for code review.
 
 **If the code is partial or no flow is specified:** review what is available, state what could not be assessed, and say what extra context would improve the audit.
+
+### Per-screen audit matrix
+When reviewing one or more concrete screens, explicitly check:
+- navigation and orientation
+- empty state
+- loading state
+- error state
+- primary CTA clarity
+- accessibility basics
+- touch ergonomics
+- copy and locale consistency
 
 ---
 
@@ -106,12 +124,14 @@ Use these categories when they improve clarity:
 - Line length, wrapping, and truncation appropriate for mobile readability
 - Consistent behavior for filters, search, sort, and view switching across the app
 - If dark mode exists, whether contrast, icons, and hierarchy remain usable
+- Consistent tone across CTAs, success messages, warnings, and errors
 
 ### 6. Localization and i18n
 - Mixed languages in labels, CTAs, errors, and navigation
 - Truncation or wrapping issues in longer translations
 - Date, time, currency, and number formatting consistent with locale
 - Technical or ambiguous copy that works in one language but becomes confusing when translated
+- Inconsistent tone or terminology across error, success, and CTA copy
 
 ### 7. Data-dense content
 - For tables in mobile, choose a strategy based on task and density: simplify columns if a few are enough, use horizontal scroll with a visible cue when exact values matter, or use expandable cards when the data has hierarchy
@@ -123,15 +143,26 @@ Use these categories when they improve clarity:
 - WCAG AA contrast as a baseline: 4.5:1 for normal text, 3:1 for large text and many UI elements
 - States and data should not rely on color alone; combine color with icon, label, or pattern
 - Main controls should remain reachable by keyboard and with increased text size
-- Focus visibility should be clear and consistent on interactive elements
+- Verify focus visibility explicitly on interactive elements
+- Verify accessible names such as labels or `aria-label` on key controls and icon-only actions
+- Verify touch-target comfort for primary and frequent actions
+- Verify that state communication does not depend on color alone
 - `prefers-reduced-motion` should be respected when motion is relevant
 - Check `touch-action`, `tap-highlight`, safe areas, and touch-target comfort in mobile web contexts
 - Check viewport behavior when the keyboard opens near bottom-screen fields
 
-### 9. UX risks
+### 9. PWA and mobile-web runtime behavior
+- Safe-area handling around notches, home indicators, and bottom actions
+- Keyboard overlap, especially with sticky bottom actions and form CTAs
+- Pull-to-refresh conflicts with custom scroll regions, tabs, or gestures
+- Install prompts and banners that interrupt key tasks or create repeated friction
+- Offline banners, offline fallback states, and reconnect behavior
+- Standalone mode behavior when the app is installed as a PWA
+
+### 10. UX risks
 - Unnecessary friction, loss of context, low-visibility actions, visual overload, and predictable user errors
 
-### 10. Mobile forms
+### 11. Mobile forms
 - Keyboard type appropriate to the data: `type="email"`, `type="tel"`, `inputmode="numeric"`, and so on
 - Inline validation is often preferable to submit-only validation for critical fields
 - Error messages should be specific, placed near the affected field, and persistent until corrected
@@ -142,7 +173,7 @@ Use these categories when they improve clarity:
 
 > For detailed form guidance, read [references/form-patterns.md](references/form-patterns.md).
 
-### 11. Dark patterns
+### 12. Dark patterns
 - **Confirmshaming:** guilt-inducing rejection language
 - **Nagging:** repeated interruptions for permissions, notifications, ratings, or subscriptions
 - **False urgency / scarcity:** pressure cues that do not reflect reality
@@ -159,13 +190,23 @@ Use these categories when they improve clarity:
 Use only the sections that add real value. Omit irrelevant sections silently.
 
 1. **General diagnosis** - open with the most critical issue in the first sentence
-2. **Main findings** - relevant strengths and problems; include finding category when useful
-3. **Prioritized recommendations** - Critical / Important / Optional; for each, explain what to change, why, and the expected benefit
-4. **Concrete proposals** - specific changes that can realistically be applied; include a textual wireframe only when the recommendation involves layout, hierarchy, or navigation reorganization
+2. **Main findings** - relevant strengths and problems
+3. **Prioritized recommendations** - Critical / Important / Optional
+4. **Concrete proposals** - specific changes that can realistically be applied
 5. **Anti-patterns detected** - what pattern is problematic and why it does not fit the case
 6. **UX risks** - what may happen if the design remains unchanged
 
 If the user provides concrete files or the issue is traceable in code, cite `file:line` where possible.
+
+For each important finding, prefer this structure:
+- **Finding**
+- **Severity**
+- **Impact**
+- **Evidence**
+- **Recommended change**
+- **File:line** when available
+
+If a recommendation involves layout, hierarchy, or navigation reorganization, include a short textual wireframe or screen-structure proposal.
 
 Respond like a UX/UI consultant: critical but useful, concrete, justified, and decision-oriented. Do not flag issues based only on stylistic preference. Prioritize what affects clarity, usage, navigation, ergonomics, accessibility, or manipulation risk.
 
@@ -191,6 +232,7 @@ Respond like a UX/UI consultant: critical but useful, concrete, justified, and d
 - **Long labels or mixed language** -> simplify wording and unify language
 - **Too much noise above the fold** -> reduce header weight and surface useful content earlier
 - **Complex table on mobile** -> simplify, use visible horizontal overflow, or switch to expandable cards depending on task and hierarchy
+- **Table appears problematic on mobile** -> do not flag it as a UX issue if the product already provides a real mobile variant in another responsive layout or state for the same task
 - **Screen with no empty state** -> recommend an intentional empty state with a clear message and next action
 - **No loading feedback** -> recommend skeletons or another visible loading state
 - **Forms or multi-step flows** -> verify autosave or other context-preserving recovery behavior

@@ -20,6 +20,14 @@
     "should_trigger": true
   },
   {
+    "query": "Give me a quick review of the mobile UX for this web app. Focus only on the most obvious issues.",
+    "should_trigger": true
+  },
+  {
+    "query": "Puedes hacer una revisión rápida de la UX móvil de esta PWA y marcar solo los problemas más visibles?",
+    "should_trigger": true
+  },
+  {
     "query": "Revisa la UX/UI móvil de esta app web y prioriza los problemas más importantes.",
     "should_trigger": true
   },
@@ -40,6 +48,10 @@
     "should_trigger": true
   },
   {
+    "query": "The repo runs locally. Please inspect the main mobile screens and tell me if the UX has obvious friction points.",
+    "should_trigger": true
+  },
+  {
     "query": "Create a brand new mobile landing page with a bold visual style and polished animations.",
     "should_trigger": false
   },
@@ -53,6 +65,10 @@
   },
   {
     "query": "Write unit tests for this form validation logic.",
+    "should_trigger": false
+  },
+  {
+    "query": "Run this app locally and tell me how to fix the TypeScript build errors.",
     "should_trigger": false
   },
   {
@@ -73,6 +89,10 @@
   },
   {
     "query": "Genera un nuevo diseño visual para esta app, sin revisar el código actual.",
+    "should_trigger": false
+  },
+  {
+    "query": "Levanta esta app localmente y verifica si la API responde bien en staging.",
     "should_trigger": false
   },
   {

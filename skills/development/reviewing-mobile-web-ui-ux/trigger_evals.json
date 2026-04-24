@@ -1,0 +1,82 @@
+[
+  {
+    "query": "Review the mobile UX/UI of this PWA and point out the most important usability issues.",
+    "should_trigger": true
+  },
+  {
+    "query": "Audit this mobile web app for accessibility, navigation, and touch ergonomics problems.",
+    "should_trigger": true
+  },
+  {
+    "query": "Check these signup forms for mobile UX issues, validation friction, and poor error handling.",
+    "should_trigger": true
+  },
+  {
+    "query": "Review this checkout flow for dark patterns and manipulative defaults on mobile web.",
+    "should_trigger": true
+  },
+  {
+    "query": "Can you analyze the navigation and URL state behavior in this PWA to see if it preserves context well?",
+    "should_trigger": true
+  },
+  {
+    "query": "Revisa la UX/UI móvil de esta app web y prioriza los problemas más importantes.",
+    "should_trigger": true
+  },
+  {
+    "query": "Audita esta PWA en navegación, formularios y accesibilidad mobile.",
+    "should_trigger": true
+  },
+  {
+    "query": "Quiero validar si este flujo de registro mobile tiene fricción, errores de jerarquía visual o dark patterns.",
+    "should_trigger": true
+  },
+  {
+    "query": "Analiza este código para detectar problemas de ergonomía táctil, labels confusos y estados vacíos en mobile web.",
+    "should_trigger": true
+  },
+  {
+    "query": "Evalúa esta app web mobile-first para ver si su deep-linking, tabs y filtros conservan bien el estado.",
+    "should_trigger": true
+  },
+  {
+    "query": "Create a brand new mobile landing page with a bold visual style and polished animations.",
+    "should_trigger": false
+  },
+  {
+    "query": "Review this React component for rendering performance, bundle size, and re-render issues.",
+    "should_trigger": false
+  },
+  {
+    "query": "Help me improve Core Web Vitals, bundle size, and render performance in this PWA.",
+    "should_trigger": false
+  },
+  {
+    "query": "Write unit tests for this form validation logic.",
+    "should_trigger": false
+  },
+  {
+    "query": "Review the UX of this desktop admin dashboard.",
+    "should_trigger": false
+  },
+  {
+    "query": "Audit this React Native onboarding flow for native mobile UX issues.",
+    "should_trigger": false
+  },
+  {
+    "query": "Ayúdame a embellecer esta interfaz web con un look más moderno y llamativo, sin hacer auditoría UX.",
+    "should_trigger": false
+  },
+  {
+    "query": "Revisa este onboarding nativo de iOS para detectar problemas de usabilidad y gestos.",
+    "should_trigger": false
+  },
+  {
+    "query": "Genera un nuevo diseño visual para esta app, sin revisar el código actual.",
+    "should_trigger": false
+  },
+  {
+    "query": "Crea pruebas E2E para este flujo de login con Playwright.",
+    "should_trigger": false
+  }
+]

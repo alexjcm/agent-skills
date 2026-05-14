@@ -1,6 +1,6 @@
-# Assertions Guide for Java 8 + JUnit 4
+# Assertions Guide for Java + JUnit 4 or JUnit 5
 
-Use this guide to keep assertions readable, maintainable, and aligned with common static-analysis expectations.
+Use this guide to keep assertions readable, maintainable, and aligned with repository conventions. Assertion style should follow the local module before any default preference in this skill.
 
 ## Preferred Pattern: Group Assertions by Subject
 
@@ -48,6 +48,11 @@ If the project already standardizes on another style:
 - keep consistency with existing tests
 - avoid introducing mixed assertion styles in the same test class
 - prioritize repository conventions over this guide
+
+Common examples:
+- keep JUnit assertions if the module consistently uses `org.junit.Assert`
+- keep Hamcrest if the module already uses matcher-based assertions
+- prefer AssertJ only when it matches existing tests or is clearly supported
 
 ## Anti-Patterns to Avoid
 

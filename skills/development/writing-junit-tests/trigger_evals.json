@@ -4,6 +4,10 @@
     "should_trigger": true
   },
   {
+    "query": "Write a new JUnit 5 test for this Java service using Jupiter and MockitoExtension.",
+    "should_trigger": true
+  },
+  {
     "query": "Necesito tests para esta clase Java, no especifique tipo pero quiero una base limpia y rapida.",
     "should_trigger": true
   },
@@ -32,7 +36,31 @@
     "should_trigger": true
   },
   {
+    "query": "Generate a test for this controller with @ExtendWith(MockitoExtension.class) and @BeforeEach.",
+    "should_trigger": true
+  },
+  {
+    "query": "Write the test in the same JUnit version already used for this class in the repository.",
+    "should_trigger": true
+  },
+  {
+    "query": "Create a unit test for this new service and follow the JUnit style used in this package.",
+    "should_trigger": true
+  },
+  {
+    "query": "Add an integration test for this repository and use the same JUnit convention as the current module.",
+    "should_trigger": true
+  },
+  {
+    "query": "Necesito un test nuevo en JUnit 5, pero respeta lo que ya use este modulo.",
+    "should_trigger": true
+  },
+  {
     "query": "Can you migrate my JUnit 4 tests to JUnit 5 with Jupiter and @ExtendWith?",
+    "should_trigger": false
+  },
+  {
+    "query": "Update this existing JUnit 4 test class to Jupiter annotations only.",
     "should_trigger": false
   },
   {

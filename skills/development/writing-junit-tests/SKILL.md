@@ -51,6 +51,9 @@ Use this skill when the user asks to:
 - Treat a single isolated JUnit 5 file as weak evidence; prefer the nearest clear convention.
 - Use JUnit-appropriate annotations and imports consistently within the chosen version.
 - Keep naming explicit and behavior-oriented (`should...When...` or `given...When...Then`).
+- Keep exception assertion lambdas limited to the single invocation expected to throw; move setup and preparation outside the lambda.
+- Prefer chained or grouped assertions when validating multiple properties of the same subject and that form is clearer.
+- Do not introduce `@Ignore`, `Assume`, `@Disabled`, `Assumptions`, or equivalent skip mechanisms just to hide slow tests; fix the test scope or the underlying cause instead.
 - Do not add unnecessary tests for trivial getters/setters unless requested.
 
 ## JUnit Version Detection
@@ -97,6 +100,7 @@ Integration expectations:
 - Default preference: AssertJ.
 - If project convention or dependencies use another assertion style, follow the repository.
 - Prefer chained assertions on the same subject and `extracting(...).containsExactly(...)` patterns when they improve readability.
+- Keep exception assertions focused on the throwing call only; avoid mixing setup or multiple actions inside the assertion lambda.
 
 Detailed assertion examples: [`references/assertions.md`](references/assertions.md)
 
@@ -123,4 +127,7 @@ Template set includes:
 - Confirm no Spring context annotations appear in unit tests.
 - Confirm integration tests use the correct Spring slice for the request.
 - Confirm assertion style follows repository conventions.
+- Confirm exception assertions keep setup outside the lambda and only execute the call expected to throw.
+- Confirm related checks on the same subject are grouped when that improves clarity.
+- Confirm no skip or assumption mechanism was introduced to hide a slow test.
 - Confirm target tests compile and the requested test class/method can be executed.

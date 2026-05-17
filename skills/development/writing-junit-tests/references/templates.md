@@ -35,8 +35,10 @@ public class OrderServiceTest {
         Order result = service.findById(1L);
 
         // Assert
-        assertThat(result).isNotNull();
-        assertThat(result.getId()).isEqualTo(1L);
+        assertThat(result)
+            .isNotNull()
+            .extracting(Order::getId)
+            .isEqualTo(1L);
     }
 }
 ```
@@ -69,8 +71,10 @@ class OrderServiceTest {
 
         Order result = service.findById(1L);
 
-        assertThat(result).isNotNull();
-        assertThat(result.getId()).isEqualTo(1L);
+        assertThat(result)
+            .isNotNull()
+            .extracting(Order::getId)
+            .isEqualTo(1L);
     }
 }
 ```
@@ -105,8 +109,9 @@ public class UserControllerTest {
 
         Response response = controller.getUser("john");
 
-        assertThat(response.getStatus()).isEqualTo(200);
-        assertThat(response.getBody()).isEqualTo(dto);
+        assertThat(response)
+            .extracting(Response::getStatus, Response::getBody)
+            .containsExactly(200, dto);
     }
 }
 ```
@@ -139,8 +144,9 @@ class UserControllerTest {
 
         Response response = controller.getUser("john");
 
-        assertThat(response.getStatus()).isEqualTo(200);
-        assertThat(response.getBody()).isEqualTo(dto);
+        assertThat(response)
+            .extracting(Response::getStatus, Response::getBody)
+            .containsExactly(200, dto);
     }
 }
 ```

@@ -56,6 +56,34 @@
     "should_trigger": true
   },
   {
+    "query": "Write a unit test for this Java 25 Spring Boot 4 service and follow the JUnit Jupiter style already used in the module.",
+    "should_trigger": true
+  },
+  {
+    "query": "Genera pruebas para este modulo Spring Boot 4 con Java 25. Usa el mismo estilo de tests que ya existe en src/test.",
+    "should_trigger": true
+  },
+  {
+    "query": "Add a repository integration test for this Spring Boot 4 module using the same DataJpaTest convention already used in src/integration-test.",
+    "should_trigger": true
+  },
+  {
+    "query": "Write a controller test for this Java 25 project and respect its custom MockMvcControllerBaseTest convention.",
+    "should_trigger": true
+  },
+  {
+    "query": "Create a focused MVC integration test for this Spring Boot 4 controller with WebMvcTest and MockMvc, matching local imports.",
+    "should_trigger": true
+  },
+  {
+    "query": "Necesito pruebas de integracion para este repositorio Java 25 con source set integrationTest y JUnit Jupiter.",
+    "should_trigger": true
+  },
+  {
+    "query": "Write a full-context SpringBootTest smoke test for this Boot 4 application only if the module convention already does that.",
+    "should_trigger": true
+  },
+  {
     "query": "Can you migrate my JUnit 4 tests to JUnit 5 with Jupiter and @ExtendWith?",
     "should_trigger": false
   },
@@ -85,6 +113,14 @@
   },
   {
     "query": "Set up GitHub Actions to run tests in CI for my monorepo.",
+    "should_trigger": false
+  },
+  {
+    "query": "Convierte todo este modulo Java 8 de JUnit 4 a JUnit 5 y cambia todas las anotaciones.",
+    "should_trigger": false
+  },
+  {
+    "query": "Necesito ayuda para actualizar Spring Boot 2 a Spring Boot 4 en este proyecto.",
     "should_trigger": false
   }
 ]

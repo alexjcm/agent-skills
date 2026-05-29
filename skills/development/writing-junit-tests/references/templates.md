@@ -1,10 +1,15 @@
 # Templates for `writing-junit-tests`
 
-Use these templates as starting points and adapt names, imports, and assertion style to the repository conventions. Prefer the version already established for the same class, package, or module. If no clear local convention exists, start from the JUnit 4 template for the requested test type.
+Use these templates as starting points after you have already decided the repository profile and test type. Always adapt names, imports, setup, and assertion style to the repository conventions.
 
-## 1) Service Unit Test
+Selection order:
+- `legacy` profile: Java 8 modules with JUnit 4 or older Spring conventions
+- `modern` profile: Java 25 + Spring Boot 4 style modules with JUnit Jupiter and test slices
+- repository-specific template: when the module already uses a custom controller base or test bootstrap
 
-### JUnit 4 + Mockito
+## 1) Legacy Service Unit Test
+
+Use when the module is Java 8 and nearby tests clearly use JUnit 4.
 
 ```java
 import static org.assertj.core.api.Assertions.assertThat;
@@ -43,7 +48,11 @@ public class OrderServiceTest {
 }
 ```
 
-### JUnit 5 + Mockito
+Pass exact arguments directly. Do not write `when(orderRepository.findById(eq(1L))).thenReturn(expected);` unless the call is already using other Mockito matchers and consistency requires matcher form.
+
+## 2) Legacy or Modern Service Unit Test with Jupiter
+
+Use when nearby service tests already use JUnit 5 or the module is clearly modern.
 
 ```java
 import static org.assertj.core.api.Assertions.assertThat;
@@ -79,9 +88,11 @@ class OrderServiceTest {
 }
 ```
 
-## 2) Controller Unit Test (No Spring Test Context)
+Prefer direct argument values in stubbing and verification when the inputs are exact and already known.
 
-### JUnit 4 + Mockito
+## 3) Legacy Controller Unit Test Without Spring Context
+
+Use when the controller can be exercised directly as a plain object and no HTTP layer is needed.
 
 ```java
 import static org.assertj.core.api.Assertions.assertThat;
@@ -116,10 +127,12 @@ public class UserControllerTest {
 }
 ```
 
-### JUnit 5 + Mockito
+## 4) Modern Controller Unit Test Without Spring Context
+
+Use when the module is modern but the controller can still be tested as a plain object, without HTTP infrastructure.
 
 ```java
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
 
 import org.junit.jupiter.api.Test;
@@ -139,65 +152,18 @@ class UserControllerTest {
 
     @Test
     void shouldReturnOkResponseWhenUserExists() {
-        UserDTO dto = new UserDTO("john");
+        UserDto dto = new UserDto("john");
         when(userService.getUser("john")).thenReturn(dto);
 
         Response response = controller.getUser("john");
 
-        assertThat(response)
-            .extracting(Response::getStatus, Response::getBody)
-            .containsExactly(200, dto);
+        assertEquals(200, response.getStatus());
+        assertEquals(dto, response.getBody());
     }
 }
 ```
 
-## 3) Controller Isolated Test with `MockMvcBuilders.standaloneSetup(...)`
-
-This is still an isolated or unit-style test because it does not load a Spring test context.
-
-### JUnit 4
-
-```java
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-import static org.mockito.Mockito.when;
-
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.InjectMocks;
-import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.setup.MockMvcBuilders;
-
-@RunWith(MockitoJUnitRunner.class)
-public class UserControllerStandaloneTest {
-
-    private MockMvc mockMvc;
-
-    @Mock
-    private UserService userService;
-
-    @InjectMocks
-    private UserController controller;
-
-    @Before
-    public void setup() {
-        mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
-    }
-
-    @Test
-    public void shouldReturnOkWhenUserExists() throws Exception {
-        when(userService.exists("john")).thenReturn(true);
-
-        mockMvc.perform(get("/users/john"))
-            .andExpect(status().isOk());
-    }
-}
-```
-
-### JUnit 5
+## 5) Controller Unit Test with Isolated MockMvc
 
 ```java
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -239,65 +205,20 @@ class UserControllerStandaloneTest {
 }
 ```
 
-## 4) Repository Integration Test (JPA Slice)
+This is still unit-style because it does not load a Spring context.
 
-This is integration testing, not unit testing.
+## 6) Modern Repository Integration with Spring Boot 4 JPA Slice
 
-### JUnit 4
-
-```java
-import static org.assertj.core.api.Assertions.assertThat;
-
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
-import org.springframework.test.context.junit4.SpringRunner;
-
-@RunWith(SpringRunner.class)
-@DataJpaTest
-public class ReturnProviderRepositoryTest {
-
-    @Autowired
-    private TestEntityManager entityManager;
-
-    @Autowired
-    private ReturnProviderRepository repository;
-
-    @Before
-    public void setup() {
-        entityManager.persist(new ReturnProviderEntity(100L, 1, 5001L, "OLD", "USR"));
-    }
-
-    @Test
-    public void shouldUpdateSapReturnNumberWhenCompanyAndProcessMatch() {
-        // Act
-        long updatedRows = repository.updateSapReturnNumber(1, 5001L, "4500001234", "FRM0");
-        entityManager.flush();
-        entityManager.clear();
-
-        // Assert
-        ReturnProviderEntity entity = entityManager.find(ReturnProviderEntity.class, 100L);
-        assertThat(updatedRows).isEqualTo(1L);
-        assertThat(entity)
-            .extracting(ReturnProviderEntity::getSapReturnNumber, ReturnProviderEntity::getModifierUser)
-            .containsExactly("4500001234", "FRM0");
-    }
-}
-```
-
-### JUnit 5
+Use when the module is modern and repository integration tests already use JPA slices.
 
 ```java
-import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
+import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
+import org.springframework.boot.jpa.test.autoconfigure.TestEntityManager;
 
 @DataJpaTest
 class ReturnProviderRepositoryTest {
@@ -320,51 +241,19 @@ class ReturnProviderRepositoryTest {
         entityManager.clear();
 
         ReturnProviderEntity entity = entityManager.find(ReturnProviderEntity.class, 100L);
-        assertThat(updatedRows).isEqualTo(1L);
-        assertThat(entity)
-            .extracting(ReturnProviderEntity::getSapReturnNumber, ReturnProviderEntity::getModifierUser)
-            .containsExactly("4500001234", "FRM0");
+        assertEquals(1L, updatedRows);
+        assertEquals("4500001234", entity.getSapReturnNumber());
+        assertEquals("FRM0", entity.getModifierUser());
     }
 }
 ```
 
-## 5) Controller Integration Test (Web MVC Slice)
+Keep the exact import package that the current module already uses. Spring Boot 4 repositories may not match older examples.
+If a Mockito stub for this test uses exact values, prefer `when(repository.call(value1, value2))` over `when(repository.call(eq(value1), eq(value2)))`.
 
-### JUnit 4
+## 7) Modern Controller MVC Slice with `@WebMvcTest`
 
-```java
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
-
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.test.context.junit4.SpringRunner;
-import org.springframework.test.web.servlet.MockMvc;
-
-@RunWith(SpringRunner.class)
-@WebMvcTest(UserController.class)
-public class UserControllerWebMvcTest {
-
-    @Autowired
-    private MockMvc mockMvc;
-
-    @MockBean
-    private UserService userService;
-
-    @Test
-    public void shouldReturnUserWhenRequestIsValid() throws Exception {
-        mockMvc.perform(get("/users/john"))
-            .andExpect(status().isOk())
-            .andExpect(jsonPath("$.username").value("john"));
-    }
-}
-```
-
-### JUnit 5
+Use when the repository does focused MVC integration through Spring's web test slice.
 
 ```java
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
@@ -373,8 +262,8 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 @WebMvcTest(UserController.class)
@@ -383,7 +272,7 @@ class UserControllerWebMvcTest {
     @Autowired
     private MockMvc mockMvc;
 
-    @MockBean
+    @MockitoBean
     private UserService userService;
 
     @Test
@@ -391,6 +280,80 @@ class UserControllerWebMvcTest {
         mockMvc.perform(get("/users/john"))
             .andExpect(status().isOk())
             .andExpect(jsonPath("$.username").value("john"));
+    }
+}
+```
+
+Use the local import package if the module shows a different Boot generation. Keep `@MockBean` only when the repository is on an older established Spring Boot generation and nearby tests already use it.
+
+## 8) Repository-Specific Controller Test Base
+
+Use when the module already has a stable custom test base for controllers, like the Java 25 sample project.
+
+```java
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+import ec.com.kruger.spring.ws.v3.controller.test.MockMvcControllerBaseTest;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.http.MediaType;
+import org.springframework.restdocs.RestDocumentationContextProvider;
+import org.springframework.test.context.junit.jupiter.SpringExtension;
+import org.springframework.test.web.servlet.result.MockMvcResultHandlers;
+
+@ExtendWith({MockitoExtension.class, SpringExtension.class})
+class UserControllerTest extends MockMvcControllerBaseTest {
+
+    @InjectMocks
+    private UserController controller;
+
+    @Mock
+    private UserService userService;
+
+    @BeforeEach
+    void setup(RestDocumentationContextProvider provider) throws Exception {
+        super.setUpBase(controller, provider);
+    }
+
+    @Test
+    void shouldCreateUser() throws Exception {
+        UserRequest request = new UserRequest("john");
+        when(userService.exists("john")).thenReturn(true);
+
+        mockMvc.perform(post("/users")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(objectMapper.writeValueAsString(request)))
+            .andExpect(status().isOk())
+            .andDo(MockMvcResultHandlers.print());
+
+        verify(userService, times(1)).exists("john");
+    }
+}
+```
+
+Follow the custom base when it is the dominant repository pattern. Do not replace it with `@WebMvcTest` just because that is the generic Spring recommendation.
+
+## 9) Full Context Smoke Test
+
+Use `@SpringBootTest` only when the user asks for full-context behavior or when existing tests for that module already use it.
+
+```java
+import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.context.SpringBootTest;
+
+@SpringBootTest
+class ApplicationContextTest {
+
+    @Test
+    void contextLoads() {
     }
 }
 ```

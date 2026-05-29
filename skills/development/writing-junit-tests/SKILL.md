@@ -1,133 +1,146 @@
 ---
 name: writing-junit-tests
-description: Generates new Java tests in JUnit 4 or JUnit 5, following the closest repository convention for the same class, package, or module. Defaults to unit tests unless the user explicitly requests integration tests, defaults to JUnit 4 when no stronger convention is found, and does not migrate existing tests.
+description: Generates new Java tests for repository codebases that use JUnit 4, JUnit 5, Spring Boot, Mockito, or Spring test slices. Use when the user asks for unit tests, integration tests, controller tests, repository tests, JUnit tests, or help writing Java tests in Java 8 projects or modern Java 25 + Spring Boot 4 modules. Follows the closest repository convention and does not migrate existing tests unless explicitly asked.
 ---
 
 # Writing JUnit Tests
 
-This skill generates new Java tests with deterministic selection of test type and JUnit version. It follows the nearest valid repository convention before falling back to defaults.
+Generate new Java tests by following the nearest valid repository convention before using any fallback.
 
-## Activation Signals
+## Scope
 
-Use this skill when the user asks to:
-- write tests for Java code
-- create unit tests
-- create integration tests
-- write JUnit 5 or Jupiter tests
-- write tests using `@ExtendWith`, `@BeforeEach`, or `@AfterEach`
-- generate test classes for service/controller/repository code
+This skill supports two repository profiles:
 
-## Out of Scope
+- `legacy`: Java 8 projects that use JUnit 4 or JUnit 5
+- `modern`: Java 21+/25 projects, especially Spring Boot 4 modules that use JUnit Jupiter, `jakarta.*`, Gradle 9+, and Spring test slices
 
+Out of scope:
 - migrating existing tests between JUnit versions
 - non-Java or non-JUnit requests
 - test frameworks outside JUnit
 
-## Analysis Scope
+## Workflow
 
-- `Current package`: the same Java package as the target class, within the same test source set or equivalent test tree.
-- `Current module`: the smallest build unit that contains the target class and runs its tests, typically the nearest parent with `pom.xml`, `build.gradle`, or `build.gradle.kts`.
-- `Clear package convention`: at least 2 valid executable tests of the same test type using the same JUnit version inside the current package, without equally strong nearby conflict.
-- `Clear module convention`: a visible simple majority of the same test type using the same JUnit version inside the current module, used only when the current package does not provide enough evidence.
-- Do not infer conventions from outside the current package or current module unless the user explicitly asks for that.
+1. Find the smallest build unit that owns the target class.
+2. Decide whether the user asked for `unit` or `integration` behavior.
+3. Detect the local stack from build files and nearby tests.
+4. Follow the nearest clear convention for the same test type.
+5. Read [`references/templates.md`](references/templates.md) only after the profile and test type are known.
+6. Apply the local assertion style using [`references/assertions.md`](references/assertions.md).
+7. Verify imports, annotations, source set, and test scope before finalizing code.
 
-## Decision Policy (Mandatory)
+## Local Evidence
 
-1. If user does not specify test type, generate **unit tests**.
-2. Generate integration tests only when user explicitly asks for integration behavior.
+- `Current package`: the same Java package as the target class, within the relevant test source set.
+- `Current module`: the smallest build unit that contains the target class and runs its tests.
+- `Clear package convention`: at least 2 valid nearby tests of the same test type using the same style.
+- `Clear module convention`: a simple majority inside the current module when the package does not provide enough evidence.
+- Do not infer conventions from outside the current module unless the user explicitly asks.
+
+## Stack Detection
+
+Treat these signals as strong evidence for the `modern` profile:
+
+- `org.junit.jupiter.*`, `MockitoExtension`, `@BeforeEach`, `@AfterEach`
+- `spring-boot-starter-test` plus `junit-jupiter-*`
+- `src/integration-test` or `integrationTest` source sets
+- `jakarta.*` imports in the module
+- Spring Boot 4 test imports such as `org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest`
+- Gradle 9+ or repo docs that explicitly require Java 21+/25
+- local test infrastructure such as `MockMvcControllerBaseTest`, `TestConfiguration`, or custom test bootstraps
+
+Treat these signals as evidence for the `legacy` profile:
+
+- `org.junit.*`, `@RunWith(...)`, `@Before`, `@After`
+- `SpringRunner`, `MockitoJUnitRunner`, or older Spring Boot test imports
+- modules that clearly target Java 8 and have no strong Jupiter convention
+
+Use executable tests as the strongest evidence when available. If you cannot run tests, prefer strong static evidence from the same module over generic defaults.
+
+## Decision Policy
+
+1. If the user does not specify test type, generate `unit tests`.
+2. Generate integration tests only when the user explicitly asks for integration behavior or when the repository already uses an integration source set for that exact target type.
 3. Do not infer integration only because the class is a `Controller` or `Repository`.
-4. Resolve JUnit version in this order, always for the same test type when possible:
-   explicit user request, existing test for the same class, current package convention, current module convention.
-5. If no local convention is clear, default to **JUnit 4**.
-6. If the user explicitly asks for `JUnit 5` but the current module only shows valid `JUnit 4` tests, warn the user and ask for confirmation before generating code.
-7. Do not migrate or rewrite existing tests just to align versions.
+4. Resolve JUnit version in this order, always for the same test type:
+   explicit user request, existing test for the same class, package convention, module convention, stack profile default.
+5. `legacy` default: JUnit 4 only when no stronger local evidence exists.
+6. `modern` default: JUnit 5 Jupiter.
+7. If the user explicitly asks for JUnit 5 against a clearly JUnit 4-only legacy module, warn before diverging.
+8. Do not migrate or rewrite existing tests just to align versions.
 
 ## Core Rules
 
-- Target stack: Java 8 with JUnit 4 or JUnit 5.
 - Follow repository conventions only when they are locally clear for the same test type.
-- Prefer AssertJ style when compatible with repository conventions.
-- Use static imports for assertions and Mockito helpers where possible.
-- Treat a single isolated JUnit 5 file as weak evidence; prefer the nearest clear convention.
-- Use JUnit-appropriate annotations and imports consistently within the chosen version.
-- Keep naming explicit and behavior-oriented (`should...When...` or `given...When...Then`).
-- Keep exception assertion lambdas limited to the single invocation expected to throw; move setup and preparation outside the lambda.
-- Prefer chained or grouped assertions when validating multiple properties of the same subject and that form is clearer.
-- Do not introduce `@Ignore`, `Assume`, `@Disabled`, `Assumptions`, or equivalent skip mechanisms just to hide slow tests; fix the test scope or the underlying cause instead.
-- Do not add unnecessary tests for trivial getters/setters unless requested.
-
-## JUnit Version Detection
-
-Use executable tests as the strongest evidence when available.
-
-- JUnit 5 signals: `org.junit.jupiter.api.*`, `@BeforeEach`, `@AfterEach`, `@ExtendWith(...)`
-- JUnit 4 signals: `org.junit.*`, `@Before`, `@After`, `@RunWith(...)`
-- Treat static analysis as secondary evidence if execution is not available.
-- A single matching file is not enough to establish package convention by itself.
-
-If tests cannot be executed during analysis, treat static evidence as secondary and avoid using a weak signal to override a clearer local convention.
+- Prefer the narrowest test scope that proves the behavior.
+- Keep naming behavior-oriented: `should...When...` or `given...When...Then`.
+- When stubbing or verifying Mockito calls with exact known values, pass the values directly instead of wrapping them with `eq(...)`.
+- Use Mockito matchers such as `eq(...)`, `any(...)`, or `argThat(...)` only when matcher semantics are actually needed.
+- Keep exception assertion lambdas limited to the single invocation expected to throw.
+- Do not introduce skip or assumption annotations to hide slow tests.
+- Do not add trivial getter/setter tests unless the user asks.
 
 ## Unit Test Guidance
 
-Use for isolated logic, no Spring context.
+Use for isolated logic with no Spring application context.
 
-Recommended annotations and structure:
-- JUnit 4: `@RunWith(MockitoJUnitRunner.class)`, `@Mock`, `@InjectMocks`, `@Before`, `@Test`
-- JUnit 5: `@ExtendWith(MockitoExtension.class)`, `@Mock`, `@InjectMocks`, `@BeforeEach`, `@Test`
-- AAA flow: Arrange, Act, Assert
+Preferred shapes:
+- JUnit 4 legacy: `@RunWith(MockitoJUnitRunner.class)`, `@Mock`, `@InjectMocks`, `@Before`
+- JUnit 5 modern: `@ExtendWith(MockitoExtension.class)`, `@Mock`, `@InjectMocks`, `@BeforeEach`
+- Controller unit tests may be plain method-level tests or isolated `MockMvc` tests without loading Spring
 
 Unit constraints:
-- Do not use `@DataJpaTest`, `@WebMvcTest`, or `@SpringBootTest`.
-- Prefer mocking collaborators and asserting behavior/output.
-- `MockMvcBuilders.standaloneSetup(...)` is an isolated or unit-style controller test, not a Spring integration test.
+- Do not use `@DataJpaTest`, `@WebMvcTest`, or `@SpringBootTest` for pure unit tests.
+- `MockMvcBuilders.standaloneSetup(...)` is still unit-style because it does not load a Spring context.
+- If the repository has a custom unit-style controller base such as `MockMvcControllerBaseTest`, follow it when it is the local convention.
+- Avoid useless Mockito matcher wrappers like `eq(companyId)` when the stubbed method can be written with direct arguments such as `companyId`.
 
 ## Integration Test Guidance
 
-Use only when explicitly requested by the user.
+Use integration tests only when the user asks for integration behavior or when existing local tests for that target type already use an integration source set.
 
-Choose the narrowest scope:
+Choose the narrowest useful scope:
 - Repository integration: `@DataJpaTest`
-- Controller integration: `@WebMvcTest`
-- Full context: `@SpringBootTest` only when needed
+- MVC/controller slice: `@WebMvcTest` or the repository's equivalent focused HTTP test base
+- Full context: `@SpringBootTest` only when slice tests are not enough
 
-Integration expectations:
-- Use real Spring slice/context components as appropriate.
-- Verify observable behavior at boundary level (HTTP, JPA interaction, transactional effects).
-- `@WebMvcTest` is an integration-style test when the user asked for integration or when that is the established convention for that type in the current module.
+For Spring Boot 4 and modern modules:
+- Prefer Spring slices before `@SpringBootTest`.
+- Do not add `SpringExtension` if the chosen slice already provides it unless the repository clearly does so everywhere.
+- Prefer `@MockitoBean` for Boot 4 MVC slice collaborators unless the repository already uses another established convention.
+- Use imports that match the current module's Spring Boot version instead of assuming older package names.
+- Recognize `src/integration-test` as a valid integration-test source set.
+- Allow `@TestConfiguration`, `@Import`, `SecurityContextHolder`, and custom test base classes when they are part of the repository's established test infrastructure.
 
 ## Assertions Policy
 
-- Default preference: AssertJ.
-- If project convention or dependencies use another assertion style, follow the repository.
-- Prefer chained assertions on the same subject and `extracting(...).containsExactly(...)` patterns when they improve readability.
-- Keep exception assertions focused on the throwing call only; avoid mixing setup or multiple actions inside the assertion lambda.
+- Follow local assertion style first.
+- If the module clearly prefers JUnit Jupiter assertions, prefer static imports such as `assertEquals(...)` instead of qualified calls like `Assertions.assertEquals(...)`.
+- If the module already uses qualified `Assertions.*` consistently in nearby tests, keep that local convention instead of rewriting style.
+- If the module clearly prefers AssertJ, use AssertJ.
+- Group related assertions on the same subject when that improves readability.
+- Keep setup outside exception assertion lambdas.
 
-Detailed assertion examples: [`references/assertions.md`](references/assertions.md)
+See [`references/assertions.md`](references/assertions.md) for concrete patterns.
 
 ## Templates
 
-Use templates from:
-- [`references/templates.md`](references/templates.md)
-
-Template set includes:
-- Service unit test in JUnit 4 and JUnit 5.
-- Controller unit test in JUnit 4 and JUnit 5.
-- Controller standalone `MockMvc` test in JUnit 4 and JUnit 5.
-- Repository integration test in JUnit 4 and JUnit 5.
-- Controller integration test in JUnit 4 and JUnit 5.
+Use [`references/templates.md`](references/templates.md) after you know which profile applies:
+- `legacy` templates for Java 8 + JUnit 4/JUnit 5
+- `modern` templates for Java 25 + Spring Boot 4
+- repository-specific controller templates when the module uses a custom base class
 
 ## Final Verification Checklist
 
-- Confirm requested test type (unit vs integration) before generating code.
+- Confirm requested test type and stack profile.
 - Confirm whether the user explicitly requested a JUnit version.
-- Confirm whether the target class already has a test and whether it is valid.
 - Confirm the nearest package or module convention for the same test type.
-- If the user requested JUnit 5 against a JUnit 4-only module, warn and ask for confirmation.
-- Confirm Java 8 + the selected JUnit version annotations/imports.
-- Confirm no Spring context annotations appear in unit tests.
-- Confirm integration tests use the correct Spring slice for the request.
-- Confirm assertion style follows repository conventions.
-- Confirm exception assertions keep setup outside the lambda and only execute the call expected to throw.
-- Confirm related checks on the same subject are grouped when that improves clarity.
-- Confirm no skip or assumption mechanism was introduced to hide a slow test.
-- Confirm target tests compile and the requested test class/method can be executed.
+- Confirm the chosen imports and annotations match the module's Spring/JUnit generation.
+- Confirm unit tests do not accidentally load Spring context.
+- Confirm integration tests use the narrowest slice that satisfies the request.
+- Confirm assertion style follows local convention.
+- Confirm JUnit assertion methods use static imports unless nearby tests clearly prefer qualified `Assertions.*` calls.
+- Confirm Mockito stubs and verifies do not use useless `eq(...)` wrappers for exact known values.
+- Confirm exception assertions contain only the throwing call.
+- Confirm no skip or assumption mechanism was introduced to hide scope problems.
+- Confirm the test belongs in the right source set, including `src/integration-test` when applicable.

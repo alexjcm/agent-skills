@@ -2,9 +2,22 @@
 
 Use this guide to keep assertions readable, maintainable, and aligned with repository conventions. Assertion style should follow the local module before any default preference in this skill.
 
-## Preferred Pattern: Group Assertions by Subject
+## Selection Order
 
-Prefer chaining assertions on the same object:
+Choose assertion style in this order:
+
+1. Existing test for the same class
+2. Nearby package convention
+3. Module convention
+4. Only if there is no clear convention, choose the clearest style already supported by the module
+
+Do not introduce AssertJ just because it is available if the module consistently uses `Assertions` or JUnit assertions.
+
+If the chosen library is JUnit Jupiter assertions, prefer static imports unless nearby tests consistently use qualified `Assertions.*` calls.
+
+## Group Assertions by Subject
+
+Prefer chaining or grouping assertions on the same object when the local assertion library supports it:
 
 ```java
 assertThat(order)
@@ -14,7 +27,17 @@ assertThat(order)
 ```
 
 This usually reads better than multiple disconnected assertions over the same variable.
-When several checks describe the same result object, grouping them can also avoid common static-analysis warnings about fragmented assertions.
+
+If the repository mostly uses JUnit assertions, grouping can still be done by keeping related checks adjacent:
+
+```java
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+
+assertNotNull(order);
+assertEquals("CREATED", order.getStatus());
+assertEquals("USD", order.getCurrency());
+```
 
 ## Readability-Friendly Patterns
 
@@ -70,6 +93,8 @@ If the project already standardizes on another style:
 
 Common examples:
 - keep JUnit assertions if the module consistently uses `org.junit.Assert`
+- prefer static Jupiter imports such as `assertEquals(...)` when the module uses JUnit 5 assertions but has no strong qualified-call convention
+- keep `org.junit.jupiter.api.Assertions` qualified calls if the module consistently uses `Assertions.*`
 - keep Hamcrest if the module already uses matcher-based assertions
 - prefer AssertJ only when it matches existing tests or is clearly supported
 
@@ -80,3 +105,21 @@ Common examples:
 - Putting setup, mock configuration, or multiple actions inside an exception assertion lambda.
 - Introducing skip or assumption mechanisms to hide slow tests instead of correcting test scope or test design.
 - Asserting implementation details that do not matter for behavior.
+
+## Related Mockito Style
+
+Even though this file is about assertions, the same readability rule applies to Mockito stubbing and verification:
+
+```java
+when(repository.findByCompanyAndStatus(companyId, "ACTIVE")).thenReturn(records);
+verify(repository).findByCompanyAndStatus(companyId, "ACTIVE");
+```
+
+Prefer that form over:
+
+```java
+when(repository.findByCompanyAndStatus(eq(companyId), eq("ACTIVE"))).thenReturn(records);
+verify(repository).findByCompanyAndStatus(eq(companyId), eq("ACTIVE"));
+```
+
+Use `eq(...)` only when you are already using matchers in the same invocation or when matcher semantics are genuinely needed.

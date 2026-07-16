@@ -20,7 +20,7 @@
     "should_trigger": true
   },
   {
-    "query": "Necesito documentar una clase Java, incluyendo author a nivel de clase.",
+    "query": "Necesito documentar esta clase Java, especificando quien la escribio como autor.",
     "should_trigger": true
   },
   {

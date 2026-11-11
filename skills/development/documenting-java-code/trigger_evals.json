@@ -28,31 +28,55 @@
     "should_trigger": true
   },
   {
-    "query": "Can you generate Java comments for this Python FastAPI module?",
-    "should_trigger": false
+    "query": "Add comments to this Java controller so the team understands each endpoint.",
+    "should_trigger": true
+  },
+  {
+    "query": "Este archivo Java no tiene documentación, agrega javadoc a los métodos públicos.",
+    "should_trigger": true
   },
   {
     "query": "Create JUnit 4 unit tests for this Java service.",
     "should_trigger": false
   },
   {
-    "query": "Ayudame a publicar un paquete npm en la registry publica.",
-    "should_trigger": false
-  },
-  {
-    "query": "Optimize this SQL query and add indexes for better performance.",
-    "should_trigger": false
-  },
-  {
-    "query": "Build a CLI in Node.js to parse CSV files.",
-    "should_trigger": false
-  },
-  {
-    "query": "Translate this README from English to Spanish.",
-    "should_trigger": false
-  },
-  {
     "query": "Migrate these tests from JUnit 4 to JUnit 5 Jupiter.",
+    "should_trigger": false
+  },
+  {
+    "query": "Add Swagger @Operation and @ApiResponse annotations to this Spring controller so the OpenAPI spec is complete.",
+    "should_trigger": false
+  },
+  {
+    "query": "Document this Kotlin data class with KDoc comments including @property tags.",
+    "should_trigger": false
+  },
+  {
+    "query": "Add JSDoc comments to all exported functions in this TypeScript module.",
+    "should_trigger": false
+  },
+  {
+    "query": "Add inline comments explaining the business logic inside this complex Java method.",
+    "should_trigger": false
+  },
+  {
+    "query": "Generate a README.md with setup instructions and architecture overview for this Java project.",
+    "should_trigger": false
+  },
+  {
+    "query": "Review this Java class and suggest improvements to the code structure and naming.",
+    "should_trigger": false
+  },
+  {
+    "query": "Necesito generar un reporte de cobertura de documentacion con Checkstyle para este modulo Java.",
+    "should_trigger": false
+  },
+  {
+    "query": "Can you generate Java comments for this Python FastAPI module?",
+    "should_trigger": false
+  },
+  {
+    "query": "Refactor this Java service to use the strategy pattern and rename the methods.",
     "should_trigger": false
   }
 ]

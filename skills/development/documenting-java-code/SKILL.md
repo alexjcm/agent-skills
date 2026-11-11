@@ -1,19 +1,11 @@
 ---
 name: documenting-java-code
-description: Generates JavaDoc for Java classes, constructors, and methods with consistent templates. Use when the user asks to document Java code, add/update JavaDoc, or generate documentation for classes and methods.
+description: Generates JavaDoc for Java classes, constructors, and methods with consistent templates. Use when the user asks to document Java code, add/update JavaDoc, or generate documentation for classes and methods. Also trigger when the user says "add comments to this Java class", "document this method", "agrega javadoc", "documenta este código", or mentions missing documentation in Java files. Do NOT use for writing tests, Swagger/OpenAPI annotations, non-Java documentation (KDoc, JSDoc, TSDoc), inline code comments, or code changes beyond JavaDoc.
 ---
 
 # Documenting Java Code
 
 This skill generates concise and consistent JavaDoc for Java code, following the local style of the project (legacy or modern) instead of a single rigid convention.
-
-## Activation Signals
-
-Use this skill when the user asks to:
-- document Java code
-- add JavaDoc
-- update JavaDoc
-- document a class, constructor, or method
 
 ## Out of Scope
 

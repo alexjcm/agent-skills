@@ -12,7 +12,7 @@ This is a growing catalog. The list below is a summary, not an exhaustive invent
 Generates JavaDoc for Java classes, constructors, and public methods.
 
 #### [writing-junit-tests](skills/development/writing-junit-tests)
-Generates Java 8 + JUnit 4 tests.
+Generates Java tests for JUnit 4/5, Spring Boot, and Mockito — supports Java 8 through Java 25 + Spring Boot 4.
 
 ### 🛠️ Tools
 

@@ -62,7 +62,48 @@ assertThat(items)
 
 ### 3) Exception assertions
 
-Keep the lambda focused on the single call expected to throw. Prepare inputs, mocks, and fixtures before the assertion.
+Keep the lambda focused on the single call expected to throw (SonarQube `java:S5778`). Pre-calculate all arguments, builders, fixtures, and helper calls into local variables before the assertion. The lambda body must contain only the method call under test with already-resolved arguments.
+
+#### JUnit Jupiter `assertThrows`
+
+❌ BAD — inline helper calls inside the lambda trigger `java:S5778`:
+
+```java
+assertThrows(IllegalArgumentException.class,
+    () -> service.process(request(filter("key", "value"))));
+```
+
+```java
+assertThrows(IllegalArgumentException.class,
+    () -> service.process(DAY.plusDays(1)));
+```
+
+```java
+assertThrows(IllegalArgumentException.class,
+    () -> service.process(FilterVo.builder().key("k").build()));
+```
+
+✅ GOOD — pre-resolve all arguments, lambda contains only the throwing call:
+
+```java
+FilterVo filter = filter("key", "value");
+RequestVo req = request(filter);
+assertThrows(IllegalArgumentException.class, () -> service.process(req));
+```
+
+```java
+LocalDate targetDay = DAY.plusDays(1);
+assertThrows(IllegalArgumentException.class, () -> service.process(targetDay));
+```
+
+```java
+FilterVo filter = FilterVo.builder().key("k").build();
+assertThrows(IllegalArgumentException.class, () -> service.process(filter));
+```
+
+#### AssertJ `assertThatThrownBy`
+
+The same rule applies. Keep preparation outside the assertion:
 
 ```java
 assertThatThrownBy(() -> service.process(null))

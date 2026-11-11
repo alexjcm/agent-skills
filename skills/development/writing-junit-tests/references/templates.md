@@ -7,6 +7,18 @@ Selection order:
 - `modern` profile: Java 25 + Spring Boot 4 style modules with JUnit Jupiter and test slices
 - repository-specific template: when the module already uses a custom controller base or test bootstrap
 
+## Table of Contents
+
+1. [Legacy Service Unit Test](#1-legacy-service-unit-test) — Java 8 + JUnit 4
+2. [Legacy or Modern Service Unit Test with Jupiter](#2-legacy-or-modern-service-unit-test-with-jupiter) — JUnit 5
+3. [Legacy Controller Unit Test Without Spring Context](#3-legacy-controller-unit-test-without-spring-context) — plain object
+4. [Modern Controller Unit Test Without Spring Context](#4-modern-controller-unit-test-without-spring-context) — JUnit 5 plain object
+5. [Controller Unit Test with Isolated MockMvc](#5-controller-unit-test-with-isolated-mockmvc) — standaloneSetup
+6. [Modern Repository Integration with Spring Boot 4 JPA Slice](#6-modern-repository-integration-with-spring-boot-4-jpa-slice) — @DataJpaTest
+7. [Modern Controller MVC Slice with @WebMvcTest](#7-modern-controller-mvc-slice-with-webmvctest) — MVC slice
+8. [Repository-Specific Controller Test Base](#8-repository-specific-controller-test-base) — custom base class
+9. [Full Context Smoke Test](#9-full-context-smoke-test) — @SpringBootTest
+
 ## 1) Legacy Service Unit Test
 
 Use when the module is Java 8 and nearby tests clearly use JUnit 4.

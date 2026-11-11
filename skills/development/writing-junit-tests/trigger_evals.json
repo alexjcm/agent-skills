@@ -122,5 +122,37 @@
   {
     "query": "Necesito ayuda para actualizar Spring Boot 2 a Spring Boot 4 en este proyecto.",
     "should_trigger": false
+  },
+  {
+    "query": "Write a TestNG test for this Java service class with @DataProvider and assertions.",
+    "should_trigger": false
+  },
+  {
+    "query": "Create a Spock specification in Groovy for this Java service with data-driven testing.",
+    "should_trigger": false
+  },
+  {
+    "query": "Write a JUnit test for this Kotlin data class using MockK instead of Mockito.",
+    "should_trigger": false
+  },
+  {
+    "query": "Generate an Android instrumented test for this Activity using Espresso and AndroidJUnit4.",
+    "should_trigger": false
+  },
+  {
+    "query": "This JUnit test is failing with a NullPointerException on line 45, can you debug it and fix the assertion?",
+    "should_trigger": false
+  },
+  {
+    "query": "Configure JaCoCo to generate a test coverage report for this Gradle multi-module project.",
+    "should_trigger": false
+  },
+  {
+    "query": "Refactor this existing test class to reduce duplication, but do not change what it tests or the JUnit version.",
+    "should_trigger": false
+  },
+  {
+    "query": "Necesito configurar el plugin de Surefire en Maven para que ejecute mis tests JUnit en paralelo.",
+    "should_trigger": false
   }
 ]

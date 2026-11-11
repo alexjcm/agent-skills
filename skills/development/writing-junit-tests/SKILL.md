@@ -1,6 +1,6 @@
 ---
 name: writing-junit-tests
-description: Generates new Java tests for repository codebases that use JUnit 4, JUnit 5, Spring Boot, Mockito, or Spring test slices. Use when the user asks for unit tests, integration tests, controller tests, repository tests, JUnit tests, or help writing Java tests in Java 8 projects or modern Java 25 + Spring Boot 4 modules. Follows the closest repository convention and does not migrate existing tests unless explicitly asked.
+description: Generates new Java tests for repository codebases that use JUnit 4, JUnit 5, Spring Boot, Mockito, or Spring test slices. Use when the user asks for unit tests, integration tests, controller tests, repository tests, JUnit tests, or help writing Java tests in Java 8 projects or modern Java 25 + Spring Boot 4 modules. Also trigger when the user says "write tests for", "add tests", "test this class", "generate test coverage", or asks to create tests following existing conventions. Follows the closest repository convention. Do NOT use for migrating existing tests between JUnit versions, debugging or fixing existing tests, refactoring existing test code, non-JUnit test frameworks (TestNG, Spock, pytest, Cypress), Kotlin tests, or documenting code with JavaDoc.
 ---
 
 # Writing JUnit Tests
@@ -76,7 +76,10 @@ Use executable tests as the strongest evidence when available. If you cannot run
 - Keep naming behavior-oriented: `should...When...` or `given...When...Then`.
 - When stubbing or verifying Mockito calls with exact known values, pass the values directly instead of wrapping them with `eq(...)`.
 - Use Mockito matchers such as `eq(...)`, `any(...)`, or `argThat(...)` only when matcher semantics are actually needed.
-- Keep exception assertion lambdas limited to the single invocation expected to throw.
+- Keep exception assertion lambdas limited to the single invocation expected to throw (SonarQube `java:S5778`).
+  Pre-calculate all arguments, builders, fixtures, and helper calls into local variables before `assertThrows` or `assertThatThrownBy`.
+  The lambda body must contain only the method call under test with already-resolved arguments — no inline `request(...)`, `filter(...)`, `Vo.builder()...build()`, or date arithmetic like `DAY.plusDays(1)`.
+- Do not name test helper methods with Java restricted identifiers (SonarQube `java:S6213`): avoid `record(...)`, `yield(...)`, `var(...)`, and `sealed(...)` as method names. Prefer descriptive alternatives like `buildRecord(...)`, `createRecord(...)`, or `toRecord(...)`.
 - Do not introduce skip or assumption annotations to hide slow tests.
 - Do not add trivial getter/setter tests unless the user asks.
 
@@ -141,6 +144,7 @@ Use [`references/templates.md`](references/templates.md) after you know which pr
 - Confirm assertion style follows local convention.
 - Confirm JUnit assertion methods use static imports unless nearby tests clearly prefer qualified `Assertions.*` calls.
 - Confirm Mockito stubs and verifies do not use useless `eq(...)` wrappers for exact known values.
-- Confirm exception assertions contain only the throwing call.
+- Confirm exception assertion lambdas contain only the throwing call with pre-resolved arguments — no inline builders, helpers, or computations (`java:S5778`).
+- Confirm no test helper method is named with a Java restricted identifier such as `record`, `yield`, `var`, or `sealed` (`java:S6213`).
 - Confirm no skip or assumption mechanism was introduced to hide scope problems.
 - Confirm the test belongs in the right source set, including `src/integration-test` when applicable.
